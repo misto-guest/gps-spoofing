@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Campaign - GPS Campaign Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .breadcrumb {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--danger);
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--success);
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .icon-option {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-option:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .icon-option.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .icon-option .emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .icon-option .label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Account Selection */
+        .account-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .account-selector select {
+            flex: 1;
+        }
+
+        .account-selector .btn {
+            flex-shrink: 0;
+        }
+
+        .account-list {
+            margin-top: 12px;
+        }
+
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .account-item:hover {
+            border-color: var(--primary);
+        }
+
+        .account-item.selected {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .account-item .email {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .account-item .status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .account-item .status.available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .account-item .status.unavailable {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .account-item .wait-time {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Schedule Preview */
+        .schedule-preview {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .schedule-preview.warning {
+            background: #fffbeb;
+            border-color: #fcd34d;
+        }
+
+        .schedule-preview.error {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        .schedule-preview h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-preview .constraint-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .schedule-preview .constraint-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-size: 14px;
+        }
+
+        .schedule-preview .constraint-list li:last-child {
+            border-bottom: none;
+        }
+
+        .schedule-preview .constraint-list li strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Add Account Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .close:hover {
+            color: var(--text);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="breadcrumb">
+                    <a href="/">← Back to Dashboard</a>
+                </div>
+                <h1>➕ Create New Campaign</h1>
+            </div>
+            <p class="breadcrumb">Set up a new GPS tracking campaign with smart scheduling</p>
+        </header>
+
+        <div class="card">
+            <div id="error-message" class="error" style="display: none;"></div>
+            <div id="success-message" class="success" style="display: none;"></div>
+            <div id="warning-message" class="warning" style="display: none;"></div>
+
+            <form id="campaign-form">
+                <div class="form-group">
+                    <label for="campaign-name">Campaign Name *</label>
+                    <input
+                        type="text"
+                        id="campaign-name"
+                        name="name"
+                        placeholder="e.g., Downtown Route Testing"
+                        required
+                    >
+                    <div class="hint">Give your campaign a descriptive name</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Google Account</label>
+                    <div class="account-selector">
+                        <select id="google-account" name="google_account">
+                            <option value="">Select a Google account...</option>
+                        </select>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="openAddAccountModal()">
+                            + Add New
+                        </button>
+                    </div>
+                    <div class="hint">Google account to use for this campaign (tracks daily trip limits)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="device-id">Device ID</label>
+                    <input
+                        type="text"
+                        id="device-id"
+                        name="device_id"
+                        placeholder="e.g., iphone-15-pro"
+                    >
+                    <div class="hint">Leave blank to auto-select an available device</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="account-mode">Account Mode</label>
+                    <select id="account-mode" name="account_mode">
+                        <option value="normal">Normal Mode (Recommended)</option>
+                        <option value="aggressive">Aggressive Mode</option>
+                        <option value="stealth">Stealth Mode</option>
+                    </select>
+                    <div class="hint">Choose how the GPS tracking behaves</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">Duration (hours) *</label>
+                    <input
+                        type="number"
+                        id="duration"
+                        name="duration_hours"
+                        min="1"
+                        max="24"
+                        value="1"
+                        required
+                    >
+                    <div class="hint">How long should the campaign run?</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Quick Select Duration</label>
+                    <div class="icon-grid">
+                        <div class="icon-option" onclick="setDuration(1)">
+                            <div class="emoji">⏱️</div>
+                            <div class="label">1 Hour</div>
+                        </div>
+                        <div class="icon-option" onclick="setDuration(4)">
+                            <div class="emoji">⏰</div>
+                            <div class="label">4 Hours</div>
+                        </div>
+                        <div class="icon-option" onclick="setDuration(8)">
+                            <div class="emoji">🕐</div>
+                            <div class="label">8 Hours</div>
+                        </div>
+                        <div class="icon-option" onclick="setDuration(24)">
+                            <div class="emoji">📅</div>
+                            <div class="label">24 Hours</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Preview -->
+                <div id="schedule-preview" class="schedule-preview" style="display: none;">
+                    <h3>📅 Schedule Preview</h3>
+                    <div id="schedule-content"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        Create Campaign
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="calculateSchedule()">
+                        📅 Check Schedule
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="cancel()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Account Modal -->
+    <div id="add-account-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Google Account</h2>
+                <button class="close" onclick="closeAddAccountModal()">&times;</button>
+            </div>
+            <form id="add-account-form">
+                <div class="form-group">
+                    <label for="account-email">Account Email *</label>
+                    <input
+                        type="email"
+                        id="account-email"
+                        name="account_email"
+                        placeholder="your.email@gmail.com"
+                        required
+                    >
+                    <div class="hint">Email address of the Google account</div>
+                </div>
+                <div class="form-group">
+                    <label for="friendly-name">Friendly Name</label>
+                    <input
+                        type="text"
+                        id="friendly-name"
+                        name="friendly_name"
+                        placeholder="My Main Account"
+                    >
+                    <div class="hint">Optional display name</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddAccountModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedAccount = null;
+        let scheduleData = null;
+
+        // Load Google accounts on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGoogleAccounts();
+        });
+
+        async function loadGoogleAccounts() {
+            try {
+                const response = await fetch('/api/google-accounts');
+                const accounts = await response.json();
+
+                const select = document.getElementById('google-account');
+                select.innerHTML = '<option value="">Select a Google account...</option>';
+
+                accounts.forEach(account => {
+                    const option = document.createElement('option');
+                    option.value = account.account_email;
+                    option.textContent = account.friendly_name || account.account_email;
+                    option.dataset.available = account.available;
+                    option.dataset.timeUntil = account.time_until_available || '';
+                    select.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Failed to load accounts:', error);
+            }
+        }
+
+        function setDuration(hours) {
+            document.getElementById('duration').value = hours;
+
+            // Visual feedback
+            document.querySelectorAll('.icon-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.icon-option').classList.add('selected');
+        }
+
+        function openAddAccountModal() {
+            document.getElementById('add-account-modal').classList.add('active');
+        }
+
+        function closeAddAccountModal() {
+            document.getElementById('add-account-modal').classList.remove('active');
+            document.getElementById('add-account-form').reset();
+        }
+
+        async function addAccount(e) {
+            e.preventDefault();
+
+            const formData = {
+                account_email: document.getElementById('account-email').value,
+                friendly_name: document.getElementById('friendly-name').value
+            };
+
+            try {
+                const response = await fetch('/api/google-accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`✅ Account "${formData.account_email}" added successfully!`);
+                    closeAddAccountModal();
+                    loadGoogleAccounts();
+
+                    // Auto-select the new account
+                    setTimeout(() => {
+                        document.getElementById('google-account').value = formData.account_email;
+                        selectedAccount = formData.account_email;
+                    }, 500);
+                } else {
+                    showError(`❌ ${data.error || 'Failed to add account'}`);
+                }
+            } catch (error) {
+                showError(`❌ Network error: ${error.message}`);
+            }
+        }
+
+        async function calculateSchedule() {
+            const formData = {
+                device_id: document.getElementById('device-id').value || null,
+                google_account: document.getElementById('google-account').value || null,
+                duration_hours: parseInt(document.getElementById('duration').value)
+            };
+
+            if (!formData.google_account) {
+                showError('Please select a Google account first');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/scheduler/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    scheduleData = data;
+                    displaySchedulePreview(data);
+                } else {
+                    showError(data.error || 'Failed to calculate schedule');
+                }
+            } catch (error) {
+                showError(`Network error: ${error.message}`);
+            }
+        }
+
+        function displaySchedulePreview(data) {
+            const preview = document.getElementById('schedule-preview');
+            const content = document.getElementById('schedule-content');
+
+            preview.className = 'schedule-preview';
+            preview.style.display = 'block';
+
+            if (data.can_start_now) {
+                preview.classList.add('success');
+                content.innerHTML = '<p style="font-size: 16px; font-weight: 600;">✅ Ready to start now!</p><p style="font-size: 14px; margin-top: 8px;">All constraints are satisfied. You can create and start this campaign immediately.</p>';
+            } else {
+                const waitHours = Math.floor(data.wait_time_minutes / 60);
+                const waitMins = data.wait_time_minutes % 60;
+
+                if (data.wait_time_minutes > 1440) {
+                    preview.classList.add('error');
+                } else {
+                    preview.classList.add('warning');
+                }
+
+                let html = `<p style="font-size: 14px; margin-bottom: 12px;"><strong>⏰ Earliest start:</strong> ${new Date(data.earliest_start).toLocaleString()}</p>`;
+                html += `<p style="font-size: 14px; margin-bottom: 12px;"><strong>⏳ Wait time:</strong> ${waitHours}h ${waitMins}m</p>`;
+                html += '<ul class="constraint-list">';
+
+                data.constraints.forEach(constraint => {
+                    html += `<li><strong>${constraint.type}:</strong> ${constraint.reason}</li>`;
+                });
+
+                html += '</ul>';
+
+                content.innerHTML = html;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function cancel() {
+            if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                window.location.href = '/';
+            }
+        }
+
+        document.getElementById('add-account-form').addEventListener('submit', addAccount);
+
+        document.getElementById('campaign-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Creating Campaign <span class="spinner"></span>';
+
+            const formData = {
+                name: document.getElementById('campaign-name').value,
+                device_id: document.getElementById('device-id').value || null,
+                google_account: document.getElementById('google-account').value || null,
+                account_mode: document.getElementById('account-mode').value,
+                duration_hours: parseInt(document.getElementById('duration').value)
+            };
+
+            try {
+                const response = await fetch('/api/campaigns', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(`✅ Campaign "${formData.name}" created successfully! Redirecting...`);
+
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showError(`❌ ${data.error || 'Failed to create campaign'}`);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                showError(`❌ Network error: ${error.message}`);
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    </script>
+</body>
+</html>

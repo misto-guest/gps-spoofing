@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - GPS Campaign Manager v3.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .register-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: #667eea; }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .link { text-align: center; margin-top: 20px; }
+        .link a { color: #667eea; text-decoration: none; }
+        .link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>Create Account</h1>
+        <p class="subtitle">Join GPS Campaign Manager v3.0</p>
+
+        <div id="error" class="error" style="display:none;"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" required minlength="3">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPassword" required minlength="6">
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+        </form>
+
+        <div class="link">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const errorDiv = document.getElementById('error');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Redirect to login
+                    window.location.href = '/login?registered=true';
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Registration failed. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
