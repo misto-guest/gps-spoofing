@@ -37,19 +37,62 @@ Complete GPS spoofing automation system for Android devices with campaign manage
 
 ## 🛠️ Installation
 
-### Quick Start
+### Quick Start with Virtual Environment (Recommended)
 ```bash
 # Clone repository
 git clone <repository-url>
 cd gps-spoofing
 
-# Install dependencies
-pip3 install flask flask-socketio requests
+# Setup virtual environment and install dependencies
+python setup_venv.py
+
+# Quick start (Windows)
+start.bat
+
+# Quick start (Linux/Mac)
+./start.sh
+
+# Or manual activation and start:
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Update .env file with your configuration
+nano .env
 
 # Run server (choose one)
-python3 gps_campaign_manager_v3.py
+python gps_campaign_manager_v3.py
 # OR
-cd gps_campaign_manager && python3 run.py
+cd gps_campaign_manager && python run.py
+```
+
+### Manual Setup
+```bash
+# Clone repository
+git clone <repository-url>
+cd gps-spoofing
+
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy and edit environment configuration
+cp .env.example .env
+# Edit .env with your settings
+
+# Run server (choose one)
+python gps_campaign_manager_v3.py
+# OR
+cd gps_campaign_manager && python run.py
 ```
 
 ### Access Points
