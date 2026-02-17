@@ -34,4 +34,4 @@ echo.
 
 REM Start the application
 cd gps_campaign_manager
-python run.py
+python run.py >> log.txt 2>&1
