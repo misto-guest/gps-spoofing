@@ -1,12 +1,15 @@
 [phases.build]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python -m pip install --upgrade pip && pip install -r requirements.txt"]
 
 [start]
 cmd = "python gps_campaign_manager_v3.py"
 
 [phases.install]
-cmds = ["pip install --upgrade pip"]
+cmds = ["python -m pip install --upgrade pip setuptools wheel"]
 
 [variables]
 PORT = "5003"
 PYTHONUNBUFFERED = "1"
+
+[build]
+cmd = "python gps_campaign_manager_v3.py"
