@@ -35,7 +35,8 @@ TOKEN_EXPIRATION_HOURS = 24
 DB_PATH = os.path.join(os.path.dirname(__file__), 'campaigns.db')
 
 # === Flask and SocketIO setup ===
-app = Flask(__name__)
+template_dir = os.path.join(os.path.dirname(__file__), 'gps_campaign_manager', 'app', 'templates')
+app = Flask(__name__, template_folder=template_dir)
 app.config['SECRET_KEY'] = SECRET_KEY
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -43,8 +44,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 import sqlite3
 
 def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row
+    # Enable WAL mode for better concurrent access
+    conn.execute('PRAGMA journal_mode=WAL')
+    conn.execute('PRAGMA busy_timeout=30000')
     return conn
 
 # === Authentication Manager ===
@@ -631,6 +635,28 @@ live_logger = LiveLogger()
 def index():
     return render_template('dashboard.html')
 
+@app.route('/login')
+def login_page():
+    """Login page"""
+    return render_template('login.html')
+
+@app.route('/register')
+def register_page():
+    """Register page"""
+    return render_template('register.html')
+
+@app.route('/create')
+@require_auth
+def create_campaign_page():
+    """Create campaign page"""
+    return render_template('create.html')
+
+@app.route('/devices')
+@require_auth
+def devices_page():
+    """Devices page"""
+    return render_template('devices.html')
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -658,8 +684,11 @@ def create_device():
     data = request.get_json()
     user_id = g.user['user_id']
     name = data.get('name')
-    adb_device_id = data.get('adb_device_id')
+    # Accept both 'device_id' and 'adb_device_id' for compatibility
+    adb_device_id = data.get('adb_device_id') or data.get('device_id')
     proxy_ip = data.get('proxy_ip')
+    if not adb_device_id:
+        return jsonify({'success': False, 'message': 'device_id is required'}), 400
     success, message, device_id = device_registry.register_device(user_id, name, adb_device_id, proxy_ip)
     status_code = 201 if success else 400
     return jsonify({'success': success, 'message': message, 'device_id': device_id}), status_code
@@ -722,6 +751,49 @@ def get_campaign_logs(campaign_id):
     logs = live_logger.get_logs(campaign_id, limit)
     return jsonify(logs)
 
+@app.route('/api/campaigns')
+@require_auth
+def list_campaigns():
+    """List all campaigns for the current user"""
+    user_id = g.user['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC LIMIT 50', (user_id,))
+    campaigns = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(campaigns)
+
+@app.route('/api/dashboard/stats')
+@require_auth
+def dashboard_stats():
+    """Get dashboard statistics"""
+    user_id = g.user['user_id']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Count campaigns by status
+    cursor.execute('''
+        SELECT status, COUNT(*) as count
+        FROM campaigns
+        WHERE user_id = ?
+        GROUP BY status
+    ''', (user_id,))
+    status_counts = {row['status']: row['count'] for row in cursor.fetchall()}
+
+    stats = {
+        'campaigns': {
+            'queued': status_counts.get('queued', 0),
+            'processing': status_counts.get('processing', 0),
+            'cooldown': status_counts.get('cooldown', 0),
+            'completed': status_counts.get('completed', 0),
+            'failed': status_counts.get('failed', 0)
+        },
+        'total_campaigns': sum(status_counts.values())
+    }
+
+    conn.close()
+    return jsonify(stats)
+
 @socketio.on('subscribe_logs')
 def subscribe_logs(data):
     campaign_id = data.get('campaign_id')
@@ -782,4 +854,4 @@ def init_db():
 if __name__ == '__main__':
     init_db()
     logger.info("Starting GPS Campaign Manager v3.0")
-    socketio.run(app, host='0.0.0.0', port=5003, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5003, debug=False, allow_unsafe_werkzeug=True)
