@@ -630,6 +630,29 @@ live_logger = LiveLogger()
 
 # === Flask Routes ===
 
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for Railway monitoring"""
+    try:
+        # Test database connection
+        conn = get_db_connection()
+        conn.execute('SELECT 1')
+        conn.close()
+
+        return jsonify({
+            'status': 'healthy',
+            'environment': 'production',
+            'timestamp': datetime.now().isoformat(),
+            'database': 'connected'
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 503
+
 @app.route('/')
 @require_auth
 def index():
