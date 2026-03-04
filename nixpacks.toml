@@ -1,0 +1,12 @@
+[phases.build]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "python gps_campaign_manager_v3.py"
+
+[phases.install]
+cmds = ["pip install --upgrade pip"]
+
+[variables]
+PORT = "5003"
+PYTHONUNBUFFERED = "1"
